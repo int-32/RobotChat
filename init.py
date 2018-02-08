@@ -7,11 +7,15 @@
 import itchat
 import requests
 from itchat.content import *
+from coin.coinmarketcap import CoinData
+
+coin = CoinData()
 
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING])
 def text_reply(msg):
-    return tuling(msg)
+    if firstReply(msg):
+        return tuling(msg)
 
 
 @itchat.msg_register([PICTURE, RECORDING, ATTACHMENT, VIDEO])
@@ -36,8 +40,28 @@ def text_reply(msg):
     if msg['IsAt']:
         itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'], msg['Content']), msg['FromUserName'])
     else:
-        remsg = tuling(msg)
-        itchat.send('%s' % (remsg), msg['FromUserName'])
+        if firstReply(msg):
+            remsg = tuling(msg)
+            itchat.send('%s' % (remsg), msg['FromUserName'])
+
+
+# 过滤虚拟货币回复
+def firstReply(msg):
+    symbol = msg.text.upper()
+    if symbol in coin.coin:
+        for i in coin.getCoinInfo(symbol):
+            itchat.send('%s\n%s\n%s\n%s\n%s\n%s' % (
+                u'名称: ' + isNone(i['name']), u'当前价格: ¥' + isNone(i['price_cny']),
+                u'市值: ¥' + isNone(i['market_cap_cny']),
+                u'流通总量: ' + isNone(i['total_supply']), u'24小时交易量: ' + isNone(i['24h_volume_cny']),
+                u'近1小时波动: ' + isNone(i['percent_change_1h']) + '%',),
+                        msg['FromUserName'])
+        return False
+    return True
+
+
+def isNone(str):
+    return '--' if str == None else str
 
 
 # 连接图灵机器人
