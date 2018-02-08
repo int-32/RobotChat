@@ -41,8 +41,7 @@ def text_reply(msg):
         itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'], msg['Content']), msg['FromUserName'])
     else:
         if firstReply(msg):
-            remsg = tuling(msg)
-            itchat.send('%s' % (remsg), msg['FromUserName'])
+            tuling(msg)
 
 
 # 过滤虚拟货币回复
@@ -75,8 +74,14 @@ def tuling(msg):
             'userid': msg.user['UserName']}
     try:
         r = requests.post(apiUrl, data=data).json()
+        url = r.get('url')
+        text = r.get('text')
+
+        if url:
+            itchat.send('%s\n%s' % (text, url), msg['FromUserName'])
+        else:
+            itchat.send('%s' % (text), msg['FromUserName'])
         # 字典的get方法在字典没有'text'值的时候会返回None而不会抛出异常
-        return r.get('text')
         # 为了防止服务器没有正常响应导致程序异常退出，这里用try-except捕获了异常
         # 如果服务器没能正常交互（返回非json或无法连接），那么就会进入下面的return
     except:

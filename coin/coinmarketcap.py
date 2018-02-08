@@ -29,16 +29,6 @@ class CoinData():
         url = f'https://api.coinmarketcap.com/v1/ticker/{coin_id}/?convert=CNY'
         info = requests.get(url).json()
         return info
-        if info:
-            for i in info:
-                data = {
-                    'name': i['name'],
-                    'price_cny': i['price_cny'],
-                    'market_cap_cny': i['market_cap_cny'],
-                    'total_supply': i['total_supply'],
-                    '24h_volume_cny': i['24h_volume_cny'],
-                    'percent_change_1h': i['percent_change_1h']
-                }
 
 
 
